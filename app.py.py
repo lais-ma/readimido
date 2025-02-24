@@ -52,10 +52,9 @@ if arquivo:
             "porra": "DROGA",
             "caralho": "CARAMBA",
             "foder": "CATAR",
-            "fodido": "FERRADO",
-            "puta": "QUENGA",
-            "foda": "DROGA",
-          "buceta": "FUÇA"
+            "fodido": "QUEBRADO",
+            "puta": "SAFADA",
+            "foda": "DROGA"
     
         }
         pdf = fitz.open(arquivo_entrada)
@@ -100,3 +99,4 @@ if arquivo:
     # Remover arquivos temporários
     os.remove(temp_input_path)
     os.remove(temp_output_path)
+
