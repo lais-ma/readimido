@@ -47,18 +47,23 @@ if arquivo:
         temp_input_path = temp_input.name  
 
     def censurar_palavroes(arquivo_entrada, arquivo_saida):
-        """Cobre palavrões no PDF com retângulos brancos."""
-        palavroes = ["porra", "caralho", "foder", "fodido", "Porra", "pau", "bucet", "puta", "foda"]
+        """Substitui palavrões no PDF por retângulos brancos com palavras mais leves."""
+        substituicoes = {
+            "porra": "DROGA",
+            "caralho": "CARAMBA",
+            "foder": "DANE-SE",
+            "fodido": "FERRADO",
+            "puta": "QUENGA",
+            "foda": "DROGA"
+        }
         pdf = fitz.open(arquivo_entrada)
 
         for pagina in pdf:
-            areas_censura = []
-            for palavra in palavroes:
-                areas = pagina.search_for(palavra)
-                areas_censura.extend(areas)
-
-            for area in areas_censura:
-                pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
+            for palavrao, substituto in substituicoes.items():
+                areas = pagina.search_for(palavrao)
+                for area in areas:
+                    pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
+                    pagina.insert_text((area.x0, area.y0), substituto, fontsize=10, color=(0, 0, 0))
 
         pdf.save(arquivo_saida)
         pdf.close()
@@ -67,12 +72,15 @@ if arquivo:
     temp_output_path = temp_input_path.replace(".pdf", "_censurado.pdf")
     censurar_palavroes(temp_input_path, temp_output_path)
 
+    # Permitir que o usuário escolha o nome do arquivo
+    nome_arquivo = st.text_input("Escolha o nome do arquivo para salvar:", "livro_censurado.pdf")
+
     # Criar botão para download do PDF processado
     with open(temp_output_path, "rb") as file:
         st.download_button(
             label="📥 Baixar PDF Censurado",
             data=file,
-            file_name="livro_censurado.pdf",
+            file_name=nome_arquivo,
             mime="application/pdf",
         )
 
