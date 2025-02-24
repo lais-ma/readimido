@@ -51,10 +51,12 @@ if arquivo:
         substituicoes = {
             "porra": "DROGA",
             "caralho": "CARAMBA",
-            "foder": "DANE-SE",
+            "foder": "CATAR",
             "fodido": "FERRADO",
             "puta": "QUENGA",
-            "foda": "DROGA"
+            "foda": "DROGA",
+          "buceta": "FUÇA"
+    
         }
         pdf = fitz.open(arquivo_entrada)
 
@@ -63,7 +65,9 @@ if arquivo:
                 areas = pagina.search_for(palavrao)
                 for area in areas:
                     pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
-                    pagina.insert_text((area.x0, area.y0), substituto, fontsize=10, color=(0, 0, 0))
+                    x_inicial = area.x0  # Alinha ao início do retângulo
+                    y_central = area.y1 - ((area.y1 - area.y0) * 0.25)  # Ajuste vertical
+                    pagina.insert_text((x_inicial, y_central), substituto, fontsize=6, color=(0, 0, 0))
 
         pdf.save(arquivo_saida)
         pdf.close()
@@ -72,18 +76,27 @@ if arquivo:
     temp_output_path = temp_input_path.replace(".pdf", "_censurado.pdf")
     censurar_palavroes(temp_input_path, temp_output_path)
 
-    # Permitir que o usuário escolha o nome do arquivo
-    nome_arquivo = st.text_input("Escolha o nome do arquivo para salvar:", "livro_censurado.pdf")
+    # Opções de formato de salvamento
+    formato = st.selectbox("Escolha o formato para salvar o arquivo:", ["PDF", "TXT"])
 
-    # Criar botão para download do PDF processado
-    with open(temp_output_path, "rb") as file:
-        st.download_button(
-            label="📥 Baixar PDF Censurado",
-            data=file,
-            file_name=nome_arquivo,
-            mime="application/pdf",
-        )
-
+    if formato == "PDF":
+        with open(temp_output_path, "rb") as file:
+            st.download_button(
+                label="📥 Baixar PDF Censurado",
+                data=file,
+                file_name="livro_censurado.pdf",
+                mime="application/pdf",
+            )
+    else:
+        with open(temp_output_path, "rb") as file:
+            text_content = fitz.open(file).get_text("text")
+            st.download_button(
+                label="📥 Baixar TXT Censurado",
+                data=text_content,
+                file_name="livro_censurado.txt",
+                mime="text/plain",
+            )
+    
     # Remover arquivos temporários
     os.remove(temp_input_path)
     os.remove(temp_output_path)
