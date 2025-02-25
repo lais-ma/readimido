@@ -50,22 +50,22 @@ if arquivo:
     def censurar_palavroes(arquivo_entrada, arquivo_saida):
         """Substitui palavrões no PDF por retângulos brancos com palavras mais leves."""
         substituicoes = {
-            "porra": "DROGA",
-            "caralho": "CARAMBA",
-            "foder": "CATAR",
-            "fodido": "QUEBRADO",
-            "puta": "SAFADA",
-            "foda": "DROGA",
-            "buceta": "FUÇA",
-            "puto": "IRADO"
+            r"\bporra\b": "DROGA",
+            r"\bcaralho\b": "CARAMBA",
+            r"\bfoder\b": "CATAR",
+            r"\bfodido\b": "QUEBRADO",
+            r"\bputa merda\b": "CARACA",
+            r"\bputa\b": "SAFADA",
+            r"\bfoda\b": "DROGA",
+            r"\bbuceta\b": "FUÇA",
+            r"\bputo\b": "IRADO"
         }
         pdf = fitz.open(arquivo_entrada)
 
         for pagina in pdf:
             texto = pagina.get_text("text")
-            for palavrao, substituto in substituicoes.items():
-                padrao = rf"\\b{palavrao}\\b"  # Garante que a palavra está isolada
-                areas = pagina.search_for(palavrao)
+            for padrao, substituto in substituicoes.items():
+                areas = pagina.search_for(re.compile(padrao))
                 for area in areas:
                     pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
                     x_inicial = area.x0  # Alinha ao início do retângulo
