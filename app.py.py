@@ -106,3 +106,4 @@ if arquivo:
     # Remover arquivos temporários
     os.remove(temp_input_path)
     os.remove(temp_output_path)
+
