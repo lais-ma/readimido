@@ -67,11 +67,12 @@ if arquivo:
         for pagina in pdf:
             texto = pagina.get_text("text")
             for padrao, substituto in substituicoes.items():
-                areas = pagina.search_for(re.compile(padrao, re.IGNORECASE))
-                for area in areas:
-                    pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
-                    x_inicial = area.x0  # Alinha ao início do retângulo
-                    y_central = area.y1 - ((area.y1 - area.y0) * 0.25)  # Ajuste vertical
+                ocorrencias = [m for m in re.finditer(padrao, texto, re.IGNORECASE)]
+                for ocorrencia in ocorrencias:
+                    bbox = pagina.search_for(ocorrencia.group())[0]  # Pega a primeira ocorrência encontrada
+                    pagina.draw_rect(bbox, color=(1, 1, 1), fill=(1, 1, 1))
+                    x_inicial = bbox.x0  # Alinha ao início do retângulo
+                    y_central = bbox.y1 - ((bbox.y1 - bbox.y0) * 0.25)  # Ajuste vertical
                     pagina.insert_text((x_inicial, y_central), substituto, fontsize=7, color=(0, 0, 0))
 
         pdf.save(arquivo_saida)
@@ -105,3 +106,4 @@ if arquivo:
     # Remover arquivos temporários
     os.remove(temp_input_path)
     os.remove(temp_output_path)
+
