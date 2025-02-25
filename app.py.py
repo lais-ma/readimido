@@ -50,30 +50,29 @@ if arquivo:
     def censurar_palavroes(arquivo_entrada, arquivo_saida):
         """Substitui palavrões no PDF por retângulos brancos com palavras mais leves."""
         substituicoes = {
-            " porra ": " DROGA ",
-            " caralho ": " CARAMBA ",
-            " foder ": " CATAR ",
-            " fodido ": " QUEBRADO ",
-            " puta merda ": " CARACA ",
-            " puta ": " DOIDA ",
-            " filho da puta ": " IDIOTA ",
-            " filha da puta ": " IDIOTA ",
-            " foda ": " DROGA ",
-            " buceta ": " FUÇA ",
-            " puto ": " IRADO "
+            "porra": "DROGA",
+            "caralho": "CARAMBA",
+            "foder": "CATAR",
+            "fodido": "QUEBRADO",
+            "puta merda": "CARACA",
+            r"\bputa\b": "DOIDA",
+            "filho da puta": "IDIOTA",
+            "filha da puta": "IDIOTA",
+            "foda": "DROGA",
+            "buceta": "FUÇA",
+            r"\bputo\b": "IRADO"
         }
         pdf = fitz.open(arquivo_entrada)
 
         for pagina in pdf:
             texto = pagina.get_text("text")
             for padrao, substituto in substituicoes.items():
-                if padrao in texto:
-                    areas = pagina.search_for(padrao.strip())  # Removendo espaços para busca exata
-                    for area in areas:
-                        pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
-                        x_inicial = area.x0  # Alinha ao início do retângulo
-                        y_central = area.y1 - ((area.y1 - area.y0) * 0.25)  # Ajuste vertical
-                        pagina.insert_text((x_inicial, y_central), substituto.strip(), fontsize=6, color=(0, 0, 0))
+                areas = pagina.search_for(re.compile(padrao, re.IGNORECASE))
+                for area in areas:
+                    pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
+                    x_inicial = area.x0  # Alinha ao início do retângulo
+                    y_central = area.y1 - ((area.y1 - area.y0) * 0.25)  # Ajuste vertical
+                    pagina.insert_text((x_inicial, y_central), substituto, fontsize=7, color=(0, 0, 0))
 
         pdf.save(arquivo_saida)
         pdf.close()
@@ -106,4 +105,3 @@ if arquivo:
     # Remover arquivos temporários
     os.remove(temp_input_path)
     os.remove(temp_output_path)
-
