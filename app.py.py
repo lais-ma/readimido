@@ -55,7 +55,9 @@ if arquivo:
             " foder ": " CATAR ",
             " fodido ": " QUEBRADO ",
             " puta merda ": " CARACA ",
-            " puta ": " SAFADA ",
+            " puta ": " DOIDA ",
+            " filho da puta ": " IDIOTA ",
+            " filha da puta ": " IDIOTA ",
             " foda ": " DROGA ",
             " buceta ": " FUÇA ",
             " puto ": " IRADO "
