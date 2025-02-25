@@ -50,27 +50,28 @@ if arquivo:
     def censurar_palavroes(arquivo_entrada, arquivo_saida):
         """Substitui palavrões no PDF por retângulos brancos com palavras mais leves."""
         substituicoes = {
-            r"(?<!\w)porra(?!\w)": "DROGA",
-            r"(?<!\w)caralho(?!\w)": "CARAMBA",
-            r"(?<!\w)foder(?!\w)": "CATAR",
-            r"(?<!\w)fodido(?!\w)": "QUEBRADO",
-            r"(?<!\w)puta merda(?!\w)": "CARACA",
-            r"(?<!\w)puta(?!\w)": "SAFADA",
-            r"(?<!\w)foda(?!\w)": "DROGA",
-            r"(?<!\w)buceta(?!\w)": "FUÇA",
-            r"(?<!\w)puto(?!\w)": "IRADO"
+            " porra ": " DROGA ",
+            " caralho ": " CARAMBA ",
+            " foder ": " CATAR ",
+            " fodido ": " QUEBRADO ",
+            " puta merda ": " CARACA ",
+            " puta ": " SAFADA ",
+            " foda ": " DROGA ",
+            " buceta ": " FUÇA ",
+            " puto ": " IRADO "
         }
         pdf = fitz.open(arquivo_entrada)
 
         for pagina in pdf:
             texto = pagina.get_text("text")
             for padrao, substituto in substituicoes.items():
-                areas = pagina.search_for(re.compile(padrao))
-                for area in areas:
-                    pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
-                    x_inicial = area.x0  # Alinha ao início do retângulo
-                    y_central = area.y1 - ((area.y1 - area.y0) * 0.25)  # Ajuste vertical
-                    pagina.insert_text((x_inicial, y_central), substituto, fontsize=6, color=(0, 0, 0))
+                if padrao in texto:
+                    areas = pagina.search_for(padrao.strip())  # Removendo espaços para busca exata
+                    for area in areas:
+                        pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
+                        x_inicial = area.x0  # Alinha ao início do retângulo
+                        y_central = area.y1 - ((area.y1 - area.y0) * 0.25)  # Ajuste vertical
+                        pagina.insert_text((x_inicial, y_central), substituto.strip(), fontsize=6, color=(0, 0, 0))
 
         pdf.save(arquivo_saida)
         pdf.close()
