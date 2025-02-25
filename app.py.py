@@ -56,14 +56,15 @@ if arquivo:
             "fodido": "QUEBRADO",
             "puta": "SAFADA",
             "foda": "DROGA",
-            "buceta": "FUÇA"
+            "buceta": "FUÇA",
+            "puto": "IRADO"
         }
         pdf = fitz.open(arquivo_entrada)
 
         for pagina in pdf:
             texto = pagina.get_text("text")
             for palavrao, substituto in substituicoes.items():
-                padrao = rf"(?<!\w){palavrao}(?!\w)"  # Garante que a palavra não está dentro de outra
+                padrao = rf"\\b{palavrao}\\b"  # Garante que a palavra está isolada
                 areas = pagina.search_for(palavrao)
                 for area in areas:
                     pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
