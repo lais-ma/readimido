@@ -54,7 +54,7 @@ if arquivo:
             "caralho": "CARAMBA",
             "foder": "CATAR",
             "fodido": "QUEBRADO",
-            " puta ": "SAFADA",
+            "puta": "SAFADA",
             "foda": "DROGA",
             "buceta": "FUÇA"
         }
@@ -63,14 +63,13 @@ if arquivo:
         for pagina in pdf:
             texto = pagina.get_text("text")
             for palavrao, substituto in substituicoes.items():
-                padrao = rf"(?<![\w]){palavrao}(?![\w])"
+                padrao = rf"(?<!\w){palavrao}(?!\w)"  # Garante que a palavra não está dentro de outra
                 areas = pagina.search_for(palavrao)
                 for area in areas:
-                    if re.search(padrao, texto[area.x0:area.x1]):
-                        pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
-                        x_inicial = area.x0  # Alinha ao início do retângulo
-                        y_central = area.y1 - ((area.y1 - area.y0) * 0.25)  # Ajuste vertical
-                        pagina.insert_text((x_inicial, y_central), substituto, fontsize=6, color=(0, 0, 0))
+                    pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
+                    x_inicial = area.x0  # Alinha ao início do retângulo
+                    y_central = area.y1 - ((area.y1 - area.y0) * 0.25)  # Ajuste vertical
+                    pagina.insert_text((x_inicial, y_central), substituto, fontsize=6, color=(0, 0, 0))
 
         pdf.save(arquivo_saida)
         pdf.close()
