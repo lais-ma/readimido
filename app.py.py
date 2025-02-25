@@ -54,7 +54,8 @@ if arquivo:
             "caralho": "CARAMBA",
             "foder": "CATAR",
             "fodido": "QUEBRADO",
-            "puta merda": "CARACA",
+            "puta merda": "DROGA",
+            "puta que pariu": "CARAMBA",
             r"\bputa\b": "DOIDA",
             "filho da puta": "IDIOTA",
             "filha da puta": "IDIOTA",
@@ -80,24 +81,28 @@ if arquivo:
 
     # Criar arquivo temporário de saída
     temp_output_path = temp_input_path.replace(".pdf", "_censurado.pdf")
+    temp_reviewed_path = temp_input_path.replace(".pdf", "_revisado.pdf")
+    
+    # Rodar o código duas vezes para garantir a censura completa
     censurar_palavroes(temp_input_path, temp_output_path)
+    censurar_palavroes(temp_output_path, temp_reviewed_path)
 
     # Opções de formato de salvamento
     formato = st.selectbox("Escolha o formato para salvar o arquivo:", ["PDF", "TXT"])
 
     if formato == "PDF":
-        with open(temp_output_path, "rb") as file:
+        with open(temp_reviewed_path, "rb") as file:
             st.download_button(
-                label="📥 Baixar PDF Censurado",
+                label="💾 Baixar PDF Censurado",
                 data=file,
                 file_name="livro_censurado.pdf",
                 mime="application/pdf",
             )
     else:
-        with open(temp_output_path, "rb") as file:
+        with open(temp_reviewed_path, "rb") as file:
             text_content = fitz.open(file).get_text("text")
             st.download_button(
-                label="📥 Baixar TXT Censurado",
+                label="💾 Baixar TXT Censurado",
                 data=text_content,
                 file_name="livro_censurado.txt",
                 mime="text/plain",
@@ -106,4 +111,5 @@ if arquivo:
     # Remover arquivos temporários
     os.remove(temp_input_path)
     os.remove(temp_output_path)
+    os.remove(temp_reviewed_path)
 
