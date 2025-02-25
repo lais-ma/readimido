@@ -5,7 +5,7 @@ def censurar_palavroes(arquivo_entrada, arquivo_saida):
         "caralho": "CARAMBA",
         "foder": "CATAR",
         "fodido": "FERRADO",
-        "puta": "QUENGA",
+        "puta": "SAFADA",
         "foda": "DROGA",
         "buceta": "FUÇA"
     }
