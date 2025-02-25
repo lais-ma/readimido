@@ -50,15 +50,15 @@ if arquivo:
     def censurar_palavroes(arquivo_entrada, arquivo_saida):
         """Substitui palavrões no PDF por retângulos brancos com palavras mais leves."""
         substituicoes = {
-            r"\bporra\b": "DROGA",
-            r"\bcaralho\b": "CARAMBA",
-            r"\bfoder\b": "CATAR",
-            r"\bfodido\b": "QUEBRADO",
-            r"\bputa merda\b": "CARACA",
-            r"\bputa\b": "SAFADA",
-            r"\bfoda\b": "DROGA",
-            r"\bbuceta\b": "FUÇA",
-            r"\bputo\b": "IRADO"
+            r"(?<!\w)porra(?!\w)": "DROGA",
+            r"(?<!\w)caralho(?!\w)": "CARAMBA",
+            r"(?<!\w)foder(?!\w)": "CATAR",
+            r"(?<!\w)fodido(?!\w)": "QUEBRADO",
+            r"(?<!\w)puta merda(?!\w)": "CARACA",
+            r"(?<!\w)puta(?!\w)": "SAFADA",
+            r"(?<!\w)foda(?!\w)": "DROGA",
+            r"(?<!\w)buceta(?!\w)": "FUÇA",
+            r"(?<!\w)puto(?!\w)": "IRADO"
         }
         pdf = fitz.open(arquivo_entrada)
 
