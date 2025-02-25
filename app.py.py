@@ -67,7 +67,7 @@ if arquivo:
         for pagina in pdf:
             texto = pagina.get_text("text")
             for padrao, substituto in substituicoes.items():
-                areas = pagina.search_for(padrao, hit_max=1000)
+                areas = pagina.search_for(re.compile(padrao, re.IGNORECASE))
                 for area in areas:
                     pagina.draw_rect(area, color=(1, 1, 1), fill=(1, 1, 1))
                     x_inicial = area.x0  # Alinha ao início do retângulo
