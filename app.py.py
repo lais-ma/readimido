@@ -4,54 +4,21 @@ import tempfile
 import os
 import re
 
-# 👐 Caminho da imagem enviada
+# 🖼️ Verificar se a imagem de fundo existe
 image_path = "image.png"
+if os.path.exists(image_path):
+    st.image(image_path, use_container_width=True)
 
-# 👐 Estilo CSS para sobrepor a área de upload na imagem
-st.markdown(
-    f"""
-    <style>
-    .container {{
-        position: relative;
-        width: 100%;
-        text-align: center;
-    }}
-    .background-img {{
-        width: 100%;
-        height: auto;
-    }}
-    .upload-box {{
-        position: absolute;
-        bottom: 10%;
-        right: 10%;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-    }}
-    .st-emotion-cache-1kyxreq {{
-        display: none;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# 👐 Criar container com imagem + upload sobreposto
-st.markdown('<div class="container">', unsafe_allow_html=True)
-st.image(image_path, use_container_width=True)
-st.markdown('<div class="upload-box">', unsafe_allow_html=True)
+# 📂 Upload do PDF
 arquivo = st.file_uploader("📚 Arraste e solte o PDF aqui", type="pdf")
-st.markdown('</div></div>', unsafe_allow_html=True)
 
-# 👐 Processamento do PDF
 if arquivo:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_input:
         temp_input.write(arquivo.read())
-        temp_input_path = temp_input.name  
-
+        temp_input_path = temp_input.name
+    
     def censurar_palavroes(arquivo_entrada, arquivo_saida):
-        """Substitui palavrões no PDF por retângulos brancos com palavras mais leves."""
+        """Substitui palavrões no PDF por palavras mais leves e um fundo branco."""
         substituicoes = {
             "porra": "DROGA",
             "caralho": "CARAMBA",
@@ -67,41 +34,35 @@ if arquivo:
             "buceta": "FUÇA",
             r"\bputo\b": "IRADO"
         }
+        
         pdf = fitz.open(arquivo_entrada)
 
         for pagina in pdf:
             texto = pagina.get_text("text")
             for padrao, substituto in substituicoes.items():
-                while re.search(padrao, texto, re.IGNORECASE):
-                    ocorrencias = [m for m in re.finditer(padrao, texto, re.IGNORECASE)]
-                    for ocorrencia in ocorrencias:
-                        bbox = pagina.search_for(ocorrencia.group())[0]  # Pega a primeira ocorrência encontrada
+                ocorrencias = [m for m in re.finditer(padrao, texto, re.IGNORECASE)]
+                for ocorrencia in ocorrencias:
+                    bbox_list = pagina.search_for(ocorrencia.group())
+                    if bbox_list:
+                        bbox = bbox_list[0]  # Apenas a primeira ocorrência
                         pagina.draw_rect(bbox, color=(1, 1, 1), fill=(1, 1, 1))
-                        x_inicial = bbox.x0  # Alinha ao início do retângulo
-                        y_central = bbox.y1 - ((bbox.y1 - bbox.y0) * 0.25)  # Ajuste vertical
+                        x_inicial = bbox.x0
+                        y_central = bbox.y1 - ((bbox.y1 - bbox.y0) * 0.25)
                         pagina.insert_text((x_inicial, y_central), substituto, fontsize=7, color=(0, 0, 0))
-                    texto = pagina.get_text("text")  # Atualiza o texto para verificar novamente
-
+            texto = pagina.get_text("text")
+        
         pdf.save(arquivo_saida)
         pdf.close()
-
+    
     # Criar arquivo temporário de saída
     temp_output_path = temp_input_path.replace(".pdf", "_censurado.pdf")
-    temp_reviewed_path = temp_input_path.replace(".pdf", "_revisado.pdf")
-    temp_final_path = temp_input_path.replace(".pdf", "_final.pdf")
-    temp_final_review_path = temp_input_path.replace(".pdf", "_final_revisado.pdf")
-    
-    # Rodar o código quatro vezes para garantir a censura completa
     censurar_palavroes(temp_input_path, temp_output_path)
-    censurar_palavroes(temp_output_path, temp_reviewed_path)
-    censurar_palavroes(temp_reviewed_path, temp_final_path)
-    censurar_palavroes(temp_final_path, temp_final_review_path)
-
+    
     # Opções de formato de salvamento
     formato = st.selectbox("Escolha o formato para salvar o arquivo:", ["PDF", "TXT"])
-
+    
     if formato == "PDF":
-        with open(temp_final_review_path, "rb") as file:
+        with open(temp_output_path, "rb") as file:
             st.download_button(
                 label="💾 Baixar PDF Censurado",
                 data=file,
@@ -109,20 +70,18 @@ if arquivo:
                 mime="application/pdf",
             )
     else:
-        with open(temp_final_review_path, "rb") as file:
-            text_content = fitz.open(file).get_text("text")
-            st.download_button(
-                label="💾 Baixar TXT Censurado",
-                data=text_content,
-                file_name="livro_censurado.txt",
-                mime="text/plain",
-            )
+        with open(temp_output_path, "rb") as file:
+            doc = fitz.open(file)
+            text_content = "\n".join([page.get_text("text") for page in doc])
+            doc.close()
+        
+        st.download_button(
+            label="💾 Baixar TXT Censurado",
+            data=text_content,
+            file_name="livro_censurado.txt",
+            mime="text/plain",
+        )
     
-    # Remover arquivos temporários
+    # Remover arquivos temporários após o download
     os.remove(temp_input_path)
     os.remove(temp_output_path)
-    os.remove(temp_reviewed_path)
-    os.remove(temp_final_path)
-    os.remove(temp_final_review_path)
-
-
