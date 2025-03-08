@@ -29,6 +29,9 @@ st.markdown(
         border-radius: 10px;
         box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
     }}
+    .st-emotion-cache-1kyxreq {{
+        display: none;
+    }}
     </style>
     """,
     unsafe_allow_html=True
@@ -54,6 +57,7 @@ if arquivo:
             "caralho": "CARAMBA",
             "foder": "CATAR",
             "fodido": "QUEBRADO",
+            "fodida": "QUEBRADA",
             "puta merda": "DROGA",
             "puta que pariu": "CARAMBA",
             r"\bputa\b": "DOIDA",
@@ -68,13 +72,15 @@ if arquivo:
         for pagina in pdf:
             texto = pagina.get_text("text")
             for padrao, substituto in substituicoes.items():
-                ocorrencias = [m for m in re.finditer(padrao, texto, re.IGNORECASE)]
-                for ocorrencia in ocorrencias:
-                    bbox = pagina.search_for(ocorrencia.group())[0]  # Pega a primeira ocorrência encontrada
-                    pagina.draw_rect(bbox, color=(1, 1, 1), fill=(1, 1, 1))
-                    x_inicial = bbox.x0  # Alinha ao início do retângulo
-                    y_central = bbox.y1 - ((bbox.y1 - bbox.y0) * 0.25)  # Ajuste vertical
-                    pagina.insert_text((x_inicial, y_central), substituto, fontsize=7, color=(0, 0, 0))
+                while re.search(padrao, texto, re.IGNORECASE):
+                    ocorrencias = [m for m in re.finditer(padrao, texto, re.IGNORECASE)]
+                    for ocorrencia in ocorrencias:
+                        bbox = pagina.search_for(ocorrencia.group())[0]  # Pega a primeira ocorrência encontrada
+                        pagina.draw_rect(bbox, color=(1, 1, 1), fill=(1, 1, 1))
+                        x_inicial = bbox.x0  # Alinha ao início do retângulo
+                        y_central = bbox.y1 - ((bbox.y1 - bbox.y0) * 0.25)  # Ajuste vertical
+                        pagina.insert_text((x_inicial, y_central), substituto, fontsize=7, color=(0, 0, 0))
+                    texto = pagina.get_text("text")  # Atualiza o texto para verificar novamente
 
         pdf.save(arquivo_saida)
         pdf.close()
@@ -82,16 +88,20 @@ if arquivo:
     # Criar arquivo temporário de saída
     temp_output_path = temp_input_path.replace(".pdf", "_censurado.pdf")
     temp_reviewed_path = temp_input_path.replace(".pdf", "_revisado.pdf")
+    temp_final_path = temp_input_path.replace(".pdf", "_final.pdf")
+    temp_final_review_path = temp_input_path.replace(".pdf", "_final_revisado.pdf")
     
-    # Rodar o código duas vezes para garantir a censura completa
+    # Rodar o código quatro vezes para garantir a censura completa
     censurar_palavroes(temp_input_path, temp_output_path)
     censurar_palavroes(temp_output_path, temp_reviewed_path)
+    censurar_palavroes(temp_reviewed_path, temp_final_path)
+    censurar_palavroes(temp_final_path, temp_final_review_path)
 
     # Opções de formato de salvamento
     formato = st.selectbox("Escolha o formato para salvar o arquivo:", ["PDF", "TXT"])
 
     if formato == "PDF":
-        with open(temp_reviewed_path, "rb") as file:
+        with open(temp_final_review_path, "rb") as file:
             st.download_button(
                 label="💾 Baixar PDF Censurado",
                 data=file,
@@ -99,7 +109,7 @@ if arquivo:
                 mime="application/pdf",
             )
     else:
-        with open(temp_reviewed_path, "rb") as file:
+        with open(temp_final_review_path, "rb") as file:
             text_content = fitz.open(file).get_text("text")
             st.download_button(
                 label="💾 Baixar TXT Censurado",
@@ -112,4 +122,7 @@ if arquivo:
     os.remove(temp_input_path)
     os.remove(temp_output_path)
     os.remove(temp_reviewed_path)
+    os.remove(temp_final_path)
+    os.remove(temp_final_review_path)
+
 
