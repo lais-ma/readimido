@@ -4,10 +4,10 @@ import tempfile
 import os
 import re
 
-# 📌 Caminho da imagem enviada
+# 👐 Caminho da imagem enviada
 image_path = "image.png"
 
-# 📌 Estilo CSS para sobrepor a área de upload na imagem
+# 👐 Estilo CSS para sobrepor a área de upload na imagem
 st.markdown(
     f"""
     <style>
@@ -37,14 +37,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 📌 Criar container com imagem + upload sobreposto
+# 👐 Criar container com imagem + upload sobreposto
 st.markdown('<div class="container">', unsafe_allow_html=True)
 st.image(image_path, use_container_width=True)
 st.markdown('<div class="upload-box">', unsafe_allow_html=True)
-arquivo = st.file_uploader("Arraste e solte o PDF aqui", type="pdf")
+arquivo = st.file_uploader("📚 Arraste e solte o PDF aqui", type="pdf")
 st.markdown('</div></div>', unsafe_allow_html=True)
 
-# 📌 Processamento do PDF
+# 👐 Processamento do PDF
 if arquivo:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_input:
         temp_input.write(arquivo.read())
