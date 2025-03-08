@@ -43,13 +43,11 @@ if arquivo:
                 ocorrencias = [m for m in re.finditer(padrao, texto, re.IGNORECASE)]
                 for ocorrencia in ocorrencias:
                     bbox_list = pagina.search_for(ocorrencia.group())
-                    if bbox_list:
-                        bbox = bbox_list[0]  # Apenas a primeira ocorrência
+                    for bbox in bbox_list:  # Percorre todas as ocorrências
                         pagina.draw_rect(bbox, color=(1, 1, 1), fill=(1, 1, 1))
                         x_inicial = bbox.x0
                         y_central = bbox.y1 - ((bbox.y1 - bbox.y0) * 0.25)
                         pagina.insert_text((x_inicial, y_central), substituto, fontsize=7, color=(0, 0, 0))
-            texto = pagina.get_text("text")
         
         pdf.save(arquivo_saida)
         pdf.close()
@@ -85,3 +83,4 @@ if arquivo:
     # Remover arquivos temporários após o download
     os.remove(temp_input_path)
     os.remove(temp_output_path)
+
